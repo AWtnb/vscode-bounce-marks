@@ -1,7 +1,7 @@
 {
   "name": "bounce-marks",
   "displayName": "bounce-marks",
-  "description": "quickly move cursor to keyword defined in text file",
+  "description": "Quickly move cursor to specific keywords defined in an external file",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.106.1"
