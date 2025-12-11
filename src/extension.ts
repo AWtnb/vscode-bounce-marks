@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import * as fs from "fs";
 import * as path from "path";
 
 import { Bouncer, DEFAULT_SRC_NAME } from "./bouncer";
@@ -11,9 +12,13 @@ export function activate(context: vscode.ExtensionContext) {
   const workspaceFolders = vscode.workspace.workspaceFolders;
   if (workspaceFolders) {
     const rootPath = workspaceFolders[0].uri.fsPath;
-    const srcFilePath = path.join(rootPath, srcName);
+    const srcPath = path.join(rootPath, srcName);
 
-    const watcher = vscode.workspace.createFileSystemWatcher(srcFilePath);
+    if (fs.existsSync(srcPath)) {
+      bouncer = new Bouncer(config);
+    }
+
+    const watcher = vscode.workspace.createFileSystemWatcher(srcPath);
 
     watcher.onDidChange(() => {
       vscode.window.showInformationMessage("Keywords source file updated. Reloading...");
