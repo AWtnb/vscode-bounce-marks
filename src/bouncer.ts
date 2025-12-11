@@ -12,9 +12,9 @@ export class Bouncer {
   private readonly placeholder: string;
   private keywords: Keyword[] = [];
 
-  constructor(src: string, placeholder: string = "$0") {
-    this.src = src.trim();
-    this.placeholder = placeholder;
+  constructor(config: vscode.WorkspaceConfiguration) {
+    this.src = config.get("src") || "";
+    this.placeholder = config.get("placeholder") || "";
     this.loadKeywords();
   }
 
@@ -35,7 +35,7 @@ export class Bouncer {
       vscode.window.showInformationMessage(`src file \`${this.src}\` not found in the root of this workspace.`);
       return;
     }
-
+    console.log(this.placeholder);
     const content = fs.readFileSync(srcPath, "utf8");
     content
       .replaceAll("\r", "")
