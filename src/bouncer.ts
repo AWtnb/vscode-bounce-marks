@@ -7,7 +7,7 @@ export const DEFAULT_PLACEHOLDER = "$0";
 
 interface Keyword {
   text: string;
-  cursorOffset: number;
+  cursorOffsets: number[];
 }
 
 export class Bouncer {
@@ -19,6 +19,7 @@ export class Bouncer {
     this.src = config.get("src") || DEFAULT_SRC_NAME;
     this.placeholder = config.get("placeholder") || DEFAULT_PLACEHOLDER;
     this.loadKeywords();
+    console.log(this.keywords);
   }
 
   private loadKeywords() {
@@ -38,19 +39,23 @@ export class Bouncer {
       vscode.window.showInformationMessage(`src file \`${this.src}\` not found in the root of this workspace.`);
       return;
     }
-    console.log(this.placeholder);
+
     const content = fs.readFileSync(srcPath, "utf8");
     content
       .replaceAll("\r", "")
       .split("\n")
       .filter((line) => 0 < line.trim().length)
       .forEach((line) => {
-        if (this.placeholder == "") {
-          this.keywords.push({ text: line, cursorOffset: -1 });
-          return;
-        }
-        const offset = line.indexOf(this.placeholder);
-        this.keywords.push({ text: line.replace(this.placeholder, ""), cursorOffset: offset });
+        const offsets: number[] = [];
+        line
+          .split(this.placeholder)
+          .slice(0, -1)
+          .reduce((acc, cur) => {
+            acc += cur.length;
+            offsets.push(acc);
+            return acc;
+          }, 0);
+        this.keywords.push({ text: line.replaceAll(this.placeholder, ""), cursorOffsets: offsets });
       });
   }
 
@@ -68,7 +73,7 @@ export class Bouncer {
 
     const lines = remainingText.split("\n");
     let lineOffset = 0;
-    let newSel: vscode.Selection | null = null;
+    let newSels: vscode.Selection[] = [];
 
     lineLoop: for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -80,13 +85,16 @@ export class Bouncer {
           const lineStart = currentOffset + lineOffset;
           const matchStart = lineStart + wordStart;
           const matchEnd = matchStart + keyword.text.length;
-          if (keyword.cursorOffset == -1) {
+
+          if (keyword.cursorOffsets.length < 1) {
             const s = document.positionAt(matchStart);
             const e = document.positionAt(matchEnd);
-            newSel = new vscode.Selection(s, e);
+            newSels.push(new vscode.Selection(s, e));
           } else {
-            const c = document.positionAt(matchStart + keyword.cursorOffset);
-            newSel = new vscode.Selection(c, c);
+            keyword.cursorOffsets.forEach((o) => {
+              const c = document.positionAt(matchStart + o);
+              newSels.push(new vscode.Selection(c, c));
+            });
           }
 
           break lineLoop;
@@ -96,11 +104,11 @@ export class Bouncer {
       lineOffset += line.length + 1; // +1 for newline character
     }
 
-    if (newSel === null) {
+    if (newSels.length < 1) {
       return;
     }
-    editor.selection = newSel;
-    editor.revealRange(newSel, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    editor.selections = newSels;
+    editor.revealRange(newSels[0], vscode.TextEditorRevealType.InCenterIfOutsideViewport);
   }
 
   public jumpToPreviousKeyword(editor: vscode.TextEditor) {
@@ -117,7 +125,7 @@ export class Bouncer {
 
     const lines = precedingText.split("\n");
     let lineOffset = precedingText.length;
-    let newSel: vscode.Selection | null = null;
+    let newSels: vscode.Selection[] = [];
 
     lineLoop: for (let i = lines.length - 1; 0 <= i; i--) {
       const line = lines[i];
@@ -134,13 +142,15 @@ export class Bouncer {
             continue;
           }
 
-          if (keyword.cursorOffset == -1) {
+          if (keyword.cursorOffsets.length < 1) {
             const s = document.positionAt(matchStart);
             const e = document.positionAt(matchEnd);
-            newSel = new vscode.Selection(s, e);
+            newSels.push(new vscode.Selection(s, e));
           } else {
-            const c = document.positionAt(matchStart + keyword.cursorOffset);
-            newSel = new vscode.Selection(c, c);
+            keyword.cursorOffsets.forEach((o) => {
+              const c = document.positionAt(matchStart + o);
+              newSels.push(new vscode.Selection(c, c));
+            });
           }
 
           break lineLoop;
@@ -150,10 +160,10 @@ export class Bouncer {
       lineOffset -= line.length + 1; // +1 for newline character
     }
 
-    if (newSel === null) {
+    if (newSels.length < 1) {
       return;
     }
-    editor.selection = newSel;
-    editor.revealRange(newSel, vscode.TextEditorRevealType.InCenterIfOutsideViewport);
+    editor.selections = newSels;
+    editor.revealRange(newSels[0], vscode.TextEditorRevealType.InCenterIfOutsideViewport);
   }
 }
