@@ -59,9 +59,9 @@ export class Navigator {
       });
   }
 
-  public jumpToNextKeyword(editor: vscode.TextEditor) {
+  public stepDown(editor: vscode.TextEditor) {
     if (this.keywords.length === 0) {
-      vscode.window.showInformationMessage("No keyword to jump specified.");
+      vscode.window.showInformationMessage("No keyword to navigate specified.");
       return;
     }
 
@@ -111,9 +111,9 @@ export class Navigator {
     editor.revealRange(newSels[0], vscode.TextEditorRevealType.InCenterIfOutsideViewport);
   }
 
-  public jumpToPreviousKeyword(editor: vscode.TextEditor) {
+  public stepUp(editor: vscode.TextEditor) {
     if (this.keywords.length === 0) {
-      vscode.window.showInformationMessage("No keyword to jump specified.");
+      vscode.window.showInformationMessage("No keyword to navigate specified.");
       return;
     }
 

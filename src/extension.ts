@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     watcher.onDidDelete(() => {
-      vscode.window.showWarningMessage("Keywords source file deleted. Jump functionality may not work.");
+      vscode.window.showWarningMessage("Keywords source file deleted. Navigation may not work.");
       nav = null;
     });
 
@@ -39,16 +39,16 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   [
-    vscode.commands.registerTextEditorCommand("code-ladder.jumpNext", (editor: vscode.TextEditor) => {
+    vscode.commands.registerTextEditorCommand("code-ladder.stepDown", (editor: vscode.TextEditor) => {
       if (nav) {
-        nav.jumpToNextKeyword(editor);
+        nav.stepDown(editor);
       } else {
         vscode.window.showErrorMessage("Navigator is not initialized. Verify your configuration or reload workspace.");
       }
     }),
-    vscode.commands.registerTextEditorCommand("code-ladder.jumpPrevious", (editor: vscode.TextEditor) => {
+    vscode.commands.registerTextEditorCommand("code-ladder.stepUp", (editor: vscode.TextEditor) => {
       if (nav) {
-        nav.jumpToPreviousKeyword(editor);
+        nav.stepUp(editor);
       } else {
         vscode.window.showErrorMessage("Navigator is not initialized. Verify your configuration or reload workspace.");
       }

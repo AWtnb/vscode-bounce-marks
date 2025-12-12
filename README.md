@@ -1,14 +1,12 @@
 # vscode-code-ladder README
 
-A VSCode extension that helps you jump to specific keywords defined in an external file. With this extension, you can navigate document text based on predefined keywords and cursor positions by using `$0` placeholders within those keywords.
-
+A VSCode extension that helps you navigate document text based on predefined keywords in an external file. 
 
 ## Features
 
 1. Navigate across your document using predefined keywords.
 2. Use `$0` placeholders in keywords to specify the exact cursor position.
 3. Automatically reload the keyword configuration file (`.keywords`) when updated.
-4. Two convenient commands for jumping to the **next** or **previous** keyword.
 
 
 ## Configuration
@@ -41,9 +39,9 @@ Text-$0: "$0"
 
 This extension provides the following commands:
 
-- **Command ID**: `code-ladder.jumpNext`  
+- **Command ID**: `code-ladder.stepDown`  
    - Searches for the next keyword in the document and moves the cursor to the specified position.
-- **Command ID**: `code-ladder.jumpPrevious`  
+- **Command ID**: `code-ladder.stepUp`  
    - Searches upwards for the previous keyword in the document and moves the cursor to the specified position.
 
 ---
